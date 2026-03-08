@@ -6,9 +6,6 @@ import re
 import torch
 import torch.nn as nn
 from huggingface_hub import hf_hub_download
-# from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSequenceClassification
-# from peft import PeftModel
-# import torch.nn.functional as F
 from typing import Optional, List, Dict
 import json
 
@@ -87,15 +84,6 @@ class ChessTransformer(nn.Module):
 
 
 class TransformerPlayer(Player):
-    """
-    Player for a plain PyTorch ChessTransformer model saved with:
-        torch.save(model.state_dict(), "chess_transformer.pt")
-
-    IMPORTANT:
-    - This assumes the ChessTransformer class is already defined exactly
-      as it was during training.
-    - This also assumes move_to_id.json is the SAME vocabulary used in training.
-    """
 
     UCI_RE = re.compile(r"^[a-h][1-8][a-h][1-8][qrbn]?$", re.IGNORECASE)
 
@@ -222,9 +210,6 @@ class TransformerPlayer(Player):
     # Model scoring
     # ---------------------------
     def _score_legal_moves(self, fen: str, legal_uci: List[str]) -> Dict[str, float]:
-        """
-        Returns raw policy logits for legal moves only.
-        """
         feats = self._fen_to_features(fen)
 
         batch = {
@@ -280,7 +265,7 @@ class TransformerPlayer(Player):
         if board.is_checkmate():
             score += 100000
         elif board.is_check():
-            score += 50
+            score += 1
         board.pop()
 
         file_idx = chess.square_file(move.to_square)
